@@ -1,6 +1,6 @@
 // Gun properties
-const byte a_button = 2;
-const byte b_button = 3;
+const byte a_button = 0x0002;
+const byte b_button = 0x0003;
 
 const unsigned short serial_speed = 9600;
 
