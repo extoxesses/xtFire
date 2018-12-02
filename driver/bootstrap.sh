@@ -5,7 +5,7 @@ make -j8
 
 # cd ..
 # mkdir build/doc
-# cd build/doc/
 # make -j8 doxygen
+# cd build/doc/
 
 # sudo make install

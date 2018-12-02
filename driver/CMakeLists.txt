@@ -21,17 +21,18 @@ message("-- CMAKE_RUNTIME_OUTPUT_DIRECTORY: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
 # Configuring includes directories
 include_directories(
-  "./include"
+  "./modules/include"
 )
 
 set(LIBRARY_NAME ${PROJECT_NAME})
+set(SAMPLE_NAME "libtest")
 if(${CMAKE_BUILD_TYPE} MATCHES "Debug")
   set(LIBRARY_NAME ${LIBRARY_NAME}d)
+  set(SAMPLE_NAME ${SAMPLE_NAME}d)
 endif()
 message("-- LIBRARY_NAME: ${LIBRARY_NAME}")
 
-file(GLOB SRC_FILES "./include/*/*.h" "./src/*.cpp")
-add_library(${LIBRARY_NAME} ${SRC_FILES})
-# target_link_libraries(${LIBRARY_NAME} )
+add_subdirectory("modules")
+add_subdirectory("samples")
 
 message("--- CONFIGURATION COMPLETED ------------------")
