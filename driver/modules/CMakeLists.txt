@@ -7,4 +7,5 @@ add_library(${LIBRARY_NAME} SHARED
 
 target_link_libraries(${LIBRARY_NAME}
   "-lX11"
+  "-lXtst"
 )

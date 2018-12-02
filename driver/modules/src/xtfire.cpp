@@ -1,5 +1,7 @@
 #include <xtfire/xtfire.h>
 
+#include <X11/extensions/XTest.h>
+
 using namespace std;
 
 namespace exto {
@@ -14,23 +16,31 @@ XtFire::XtFire(){
 } // constructor
 
 XtFire::~XtFire(){
+  XCloseDisplay(display_);
+
   /* if(display_ != NULL) {
     delete display_;
   }// if */
 } // constructor
 
 void XtFire::start(){
+  click(LEFT_BTN);
 }// start
 
 /// --- PRIVATE METHODS --------- ///
 
+void XtFire::click(int button, int delay){
+  XTestFakeButtonEvent(display_, button, true, delay);
+  XTestFakeButtonEvent(display_, button, false, delay);
+  XFlush(display_);
+}// start
+
 void XtFire::mouseMove(int x, int y){
   // Freely inspired by:
   // https://stackoverflow.com/questions/20581343/how-to-move-the-mouse-cursor-from-user-code
-
   XWarpPointer(display_, None, None, 0, 0, 0, 0, x, y);
-  XCloseDisplay(display_);
 }// move
+
 
 }// namespace::emulation
 }// namespace::exto

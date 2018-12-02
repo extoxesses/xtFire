@@ -15,16 +15,20 @@ namespace emulation {
 
 class EXPORT_API XtFire {
 public:
+  static const int LEFT_BTN = 1;
+  static const int CENTER_BTN = 2;
+  static const int RIGTH_BTN = 1;
+
   XtFire();
   ~XtFire();
 
   void start();
 
-  void mouseMove(int x, int y);
-
 private:
   Display* display_;
 
+  void mouseMove(int x, int y);
+  void click(int button, int delay = 100);
 
 }; //class::XtFire
 
