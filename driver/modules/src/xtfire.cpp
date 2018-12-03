@@ -1,17 +1,16 @@
 #include <xtfire/xtfire.h>
 
-using namespace std;
-
 namespace exto {
 namespace emulation {
 
-const char* XtFire::ARDUINO_DEV = "ttyACM0";
+const std::string& XtFire::ARDUINO_DEV = "/dev/ttyACM";
 
-XtFire::XtFire() {
+XtFire::XtFire(int device) {
+  device_ = device;
   display_ = XOpenDisplay(NULL);
 
   if(display_ == NULL) {
-    throw new std::invalid_argument("ERROR: Unable to open any Display");
+    throw new std::invalid_argument("[XtFire] ERROR: Unable to open any Display");
   }// if
 
   file_descriptor_ = inotify_init();
@@ -26,31 +25,14 @@ XtFire::~XtFire(){
 } // constructor
 
 void XtFire::start() {
-  if(!isPluged("/dev/ttyACM0")){
-    LOGGER("'/dev/ttyACM0' file not found...");
-    readDeviceBuff(DEVICES_FOLDER, IN_CREATE);
+  std::string device = ARDUINO_DEV + std::to_string(device_);
+  if(!isPluged(device)){
+    LOGGER("'" + device + " file not found...");
+    waitDevice(DEVICES_FOLDER, IN_CREATE, &device);
   }// if
-  LOGGER("'/dev/ttyACM0' file found!");
+  LOGGER("'" + device + "' detected!");
 
-  for(int i = 0; i < 10; i++){
-    //char readBuffer[1024];
-    //int numBytesRead;
-    //FILE *serPort = fopen("/dev/ttyACM0", "rwb");
-
-    string line;
-    ifstream myfile ("/dev/ttyACM0");
-    if (myfile.is_open())
-    {
-      while ( getline (myfile,line) )
-      {
-        cout << line << '\n';
-      }
-      myfile.close();
-    }
-
-    else cout << "Unable to open file";
-  }// for
-
+  serialRead(device);
 }// start
 
 
@@ -59,57 +41,50 @@ void XtFire::start() {
 void XtFire::addPlugListener() {
 }// addPlugListener
 
-bool XtFire::isPluged(const char* name) {
+bool XtFire::isPluged(const std::string& name) {
   struct stat buffer;
-  return (stat (name, &buffer) == 0);
+  return (stat (name.c_str(), &buffer) == 0);
 }// isPluged
 
-char XtFire::readDeviceBuff(const char* device, int events, int* state) {
-  // int events = IN_CREATE | IN_DELETE | IN_MODIFY;
-  int watcher = inotify_add_watch(file_descriptor_, device, events);
-
-  char buffer[BUF_LEN];
-  int length = read(file_descriptor_, buffer, BUF_LEN);
-
-  int i = 0;
-  if (length < 0) {
+void XtFire::serialRead(const std::string& device_path) {
+  std::ifstream device(device_path);
+  if (!device.is_open()) {
     std::stringstream msg;
-    msg << "ERROR: Unable to read the device: " << device;
-    msg << " with statee " << state;
+    msg << "[XtFire] ERROR: Unable to open device '" << device_path << "'";
     throw new std::invalid_argument(msg.str());
   }// if
 
-  while (i < length) {
+  std::string line;
+  while (getline(device, line)) {
+    if(line != ""){
+      std::cout << "  - Readed: " << line << std::endl;
+    }// if
+  }// while
+  device.close();
+}// serialRead
+
+void XtFire::waitDevice(const std::string& device, int events, std::string* dev_path) {
+  int watcher = inotify_add_watch(file_descriptor_, device.c_str(), events);
+
+  char buffer[BUF_LEN];
+  int length = read(file_descriptor_, buffer, BUF_LEN);
+  if (length < 0) {
+    std::stringstream msg;
+    msg << "[XtFire] ERROR: Unable to read the device: " << device;
+    throw new std::invalid_argument(msg.str());
+  }// if
+
+  int inc = length;
+  for (int i = 0; i < length; i+= inc) {
     struct inotify_event *event = (struct inotify_event *) &buffer[i];
     if (event->len) {
-      if (event->mask & IN_CREATE) {
-        printf("The file %s was created.\n", event->name);
-      } else if (event->mask & IN_DELETE) {
-        printf("The file %s was deleted.\n", event->name);
-      } else if (event->mask & IN_MODIFY) {
-        printf("The file %s was modified.\n", event->name);
-
-        string line;
-        ifstream myfile ("/dev/ttyACM0");
-        if (myfile.is_open()) {
-          while ( getline (myfile,line) ){
-            cout << line << '\n';
-          }
-          myfile.close();
-        } else {
-          cout << "Unable to open file";
-        }
-
-
-      }
+      *dev_path = DEVICES_FOLDER;
+      *dev_path += event->name;
     }// if
-    i += EVENT_SIZE + event->len;
-    std::cout << "Event: " << i << std::endl;
-  }// while
-
-
+    inc = EVENT_SIZE + event->len;
+  }// for
   (void) inotify_rm_watch(file_descriptor_, watcher);
-}// read
+}// waitDevice
 
 void XtFire::mouseClick(int button, long delay) {
   // https://www.x.org/releases/X11R7.5/doc/Xext/xtestlib.html

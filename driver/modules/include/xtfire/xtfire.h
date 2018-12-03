@@ -37,21 +37,25 @@ public:
   static const int CENTER_BTN = 2;
   static const int RIGTH_BTN = 3;
 
-  static const char* ARDUINO_DEV;
+  static const std::string& ARDUINO_DEV;
 
-  XtFire();
+  XtFire(int device);
   ~XtFire();
 
   void start();
 
 private:
   Display* display_;
-  int file_descriptor_;
+  int file_descriptor_, device_;
   bool pluged_;
 
   void addPlugListener();
-  bool isPluged (const char* name);
-  char readDeviceBuff(const char* device, int events, int* state = NULL);
+  bool isPluged (const std::string& name);
+  void serialRead(const std::string& device_path);
+  void waitDevice(const std::string& device, int events, std::string* dev_path);
+
+
+
   void mouseClick(int button, long delay = 100);
   void mouseMove(int x, int y);
 
