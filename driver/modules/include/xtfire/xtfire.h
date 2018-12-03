@@ -4,7 +4,6 @@
 #include <xtfire/libdefs.h>
 
 #include <cstring>
-#include <iostream>
 #include <sstream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,6 +17,10 @@
 #include <sys/inotify.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+// Header for file reading
+#include <fstream>
+#include <string>
 
 
 namespace exto {
@@ -48,7 +51,7 @@ private:
 
   void addPlugListener();
   bool isPluged (const char* name);
-  char readDeviceBuff(const char* device, int* stat);
+  char readDeviceBuff(const char* device, int events, int* state = NULL);
   void mouseClick(int button, long delay = 100);
   void mouseMove(int x, int y);
 

@@ -2,14 +2,15 @@
 
 #include <iostream>
 
+using namespace std;
 using namespace exto::emulation;
 
 int main(void){
-  std::cout << "Start emulation test..." << std::endl;
+  cout << "Start emulation test..." << endl;
   // XtFire emulator("/dev/ttyACM0");
   XtFire emulator;
   emulator.start();
 
-  std::cout << "Test ended!" << std::endl;
+  cout << "Test ended!" << endl;
   return 1;
 }// main

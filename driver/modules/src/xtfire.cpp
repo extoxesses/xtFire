@@ -18,24 +18,38 @@ XtFire::XtFire() {
   if (file_descriptor_ < 0) {
     throw new std::invalid_argument(std::strerror(file_descriptor_));
   }// if
-
-  pluged_ = isPluged("/dev/ttyACM0");
-  std::cout << "Pluged_ "<< pluged_ << endl;
 } // constructor
 
 XtFire::~XtFire(){
   XCloseDisplay(display_);
-  ( void ) close( file_descriptor_ );
+  (void)close(file_descriptor_);
 } // constructor
 
 void XtFire::start() {
-  if(!pluged_){
-    std::cout << "Pluged_ "<< pluged_ << endl;
-
-    int stat;
-    readDeviceBuff(DEVICES_FOLDER, &stat);
+  if(!isPluged("/dev/ttyACM0")){
+    LOGGER("'/dev/ttyACM0' file not found...");
+    readDeviceBuff(DEVICES_FOLDER, IN_CREATE);
   }// if
+  LOGGER("'/dev/ttyACM0' file found!");
 
+  for(int i = 0; i < 10; i++){
+    //char readBuffer[1024];
+    //int numBytesRead;
+    //FILE *serPort = fopen("/dev/ttyACM0", "rwb");
+
+    string line;
+    ifstream myfile ("/dev/ttyACM0");
+    if (myfile.is_open())
+    {
+      while ( getline (myfile,line) )
+      {
+        cout << line << '\n';
+      }
+      myfile.close();
+    }
+
+    else cout << "Unable to open file";
+  }// for
 
 }// start
 
@@ -50,8 +64,8 @@ bool XtFire::isPluged(const char* name) {
   return (stat (name, &buffer) == 0);
 }// isPluged
 
-char XtFire::readDeviceBuff(const char* device, int* stat) {
-  int events = IN_CREATE | IN_DELETE | IN_MODIFY;
+char XtFire::readDeviceBuff(const char* device, int events, int* state) {
+  // int events = IN_CREATE | IN_DELETE | IN_MODIFY;
   int watcher = inotify_add_watch(file_descriptor_, device, events);
 
   char buffer[BUF_LEN];
@@ -61,7 +75,7 @@ char XtFire::readDeviceBuff(const char* device, int* stat) {
   if (length < 0) {
     std::stringstream msg;
     msg << "ERROR: Unable to read the device: " << device;
-    msg << " with state " << stat;
+    msg << " with statee " << state;
     throw new std::invalid_argument(msg.str());
   }// if
 
@@ -71,9 +85,22 @@ char XtFire::readDeviceBuff(const char* device, int* stat) {
       if (event->mask & IN_CREATE) {
         printf("The file %s was created.\n", event->name);
       } else if (event->mask & IN_DELETE) {
-        printf("The file %s was IN_CREATEdeleted.\n", event->name);
+        printf("The file %s was deleted.\n", event->name);
       } else if (event->mask & IN_MODIFY) {
         printf("The file %s was modified.\n", event->name);
+
+        string line;
+        ifstream myfile ("/dev/ttyACM0");
+        if (myfile.is_open()) {
+          while ( getline (myfile,line) ){
+            cout << line << '\n';
+          }
+          myfile.close();
+        } else {
+          cout << "Unable to open file";
+        }
+
+
       }
     }// if
     i += EVENT_SIZE + event->len;

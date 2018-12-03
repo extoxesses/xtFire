@@ -1,11 +1,14 @@
 #ifndef LIBDEF_H
 #define LIBDEF_H
 
+#include <iostream>
+
 #ifdef _DEBUG
-  #define LOG(...) printf("%s", __VA_ARGS__)
+  #define LOGGER(...) std::cout << "[LOGGER] " << __VA_ARGS__ << std::endl;
 #else
-  #define LOG()
+  #define LOGGER(...)
 #endif
+
 
 #if defined(_MSC_VER)
   #ifdef _DEBUG
