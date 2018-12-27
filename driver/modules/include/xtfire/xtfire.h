@@ -2,29 +2,28 @@
 #define XT_FIRE_H
 
 #include <xtfire/libdefs.h>
+#include <xtfire/consts.h>
 
 #include <cstring>
+#include <fstream>
 #include <sstream>
+#include <string>
+
 #include <stdio.h>
 #include <stdlib.h>
 
-// Headers for file listener
-#include <sys/inotify.h>
-#include <sys/stat.h>
+// Linux POSIX headers files
+#include <linux/uinput.h>
+#include <fcntl.h>
+#include <string.h>
 #include <unistd.h>
 
-// Header for file reading
-#include <fstream>
-#include <string>
 
 
 namespace exto {
 namespace emulation {
 
-#define EVENT_SIZE (sizeof (struct inotify_event))
-#define BUF_LEN (1024 * ( EVENT_SIZE + 16 ))
-
-#define DEVICES_FOLDER "/dev/"
+#define LINUX_UINPUT_FOLDER "/dev/uinput"
 
 class EXPORT_API XtFire {
 public:
@@ -38,8 +37,13 @@ public:
 private:
   std::string device_path_;
   std::ifstream* device_;
+  int emu_fd_;
+
+  void createEmulation();
 
   void openArduino();
+
+  void writeCmd(int fd, int type, int code, int val);
 
 }; //class::XtFire
 

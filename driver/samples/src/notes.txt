@@ -1,3 +1,14 @@
+# Includer for inotify
+###########################
+
+// Headers for file listener
+#include <sys/inotify.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
+#define EVENT_SIZE (sizeof (struct inotify_event))
+#define BUF_LEN (1024 * ( EVENT_SIZE + 16 ))
+
 # To eard the file
 ###########################
 
