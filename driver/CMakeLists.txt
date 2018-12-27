@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(xtFireHIDDriver)
 set(PROJECT_VERSION 0.1)
 
-message(STATUS "--- START CONFIGURATION ------------------")
+message(STATUS "--- Configuration started ------------------")
 
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
 set(CMAKE_CXX_STANDARD 11)
@@ -39,4 +39,4 @@ message(STATUS "LIBRARY_NAME: ${LIBRARY_NAME}")
 add_subdirectory("modules")
 add_subdirectory("samples")
 
-message("--- CONFIGURATION COMPLETED ------------------")
+message("--- Configuration completed! ------------------")

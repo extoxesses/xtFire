@@ -1,0 +1,51 @@
+# To eard the file
+###########################
+
+file_descriptor_ = inotify_init();
+if (file_descriptor_ < 0) {
+  throw new std::invalid_argument(std::strerror(file_descriptor_));
+}// if
+
+
+# Wait for device
+###########################
+
+std::string device = ARDUINO_DEV + std::to_string(device_);
+if(!isPluged(device)){
+  LOGGER("'" + device + " file not found...");
+  waitDevice(DEVICES_FOLDER, IN_CREATE, &device);
+}// if
+LOGGER("'" + device + "' detected!");
+
+  (void) close(file_descriptor_);
+
+# Backuped methods 
+###########################
+
+bool XtFire::isPluged(const std::string& name) {
+  struct stat buffer;
+  return (stat (name.c_str(), &buffer) == 0);
+}// isPluged
+
+void XtFire::waitDevice(const std::string& device, int events, std::string* dev_path) {
+  int watcher = inotify_add_watch(file_descriptor_, device.c_str(), events);
+
+  char buffer[BUF_LEN];
+  int length = read(file_descriptor_, buffer, BUF_LEN);
+  if (length < 0) {
+    std::stringstream msg;
+    msg << "[XtFire] ERROR: Unable to read the device: " << device;
+    throw new std::invalid_argument(msg.str());
+  }// if
+
+  int inc = length;
+  for (int i = 0; i < length; i+= inc) {
+    struct inotify_event *event = (struct inotify_event *) &buffer[i];
+    if (event->len) {
+      *dev_path = DEVICES_FOLDER;
+      *dev_path += event->name;
+    }// if
+    inc = EVENT_SIZE + event->len;
+  }// for
+  (void) inotify_rm_watch(file_descriptor_, watcher);
+}// waitDevice
