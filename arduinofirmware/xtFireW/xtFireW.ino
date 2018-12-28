@@ -1,8 +1,13 @@
 // Gun properties
-const byte a_button = 0x0002;
-const byte b_button = 0x0003;
+const byte a_btn     = 0x0002;
+const byte b_btn     = 0x0003;
 
-const unsigned short serial_speed = 9600;
+const byte up_btn    = 0x0030;
+const byte down_btn  = 0x0031;
+const byte left_btn  = 0x0032;
+const byte rigth_btn = 0x0033;
+
+const unsigned short serial_speed = 1200; // 9600;
 
 /*
  * This parameters are needed to reduce the debounce
@@ -15,42 +20,49 @@ unsigned long debounceTime = 0;
 void setup() {
   Serial.begin(serial_speed);
 
-  // pinMode(a_button, INPUT);
-  // attachInterrupt(digitalPinToInterrupt(a_button), aButtonISR, RISING);
+  pinMode(a_btn,     INPUT);
+  pinMode(b_btn,     INPUT);
+  // attachInterrupt(digitalPinToInterrupt(a_btn), aButtonISR, RISING);
+  // attachInterrupt(digitalPinToInterrupt(b_btn), bButtonISR, RISING);
   
-  // pinMode(b_button, INPUT);
-  // attachInterrupt(digitalPinToInterrupt(b_button), bButtonISR, RISING);
-
-  pinMode(30, INPUT);
-  pinMode(31, INPUT);
-  pinMode(32, INPUT);
-  pinMode(33, INPUT);
+  pinMode(up_btn,    INPUT);
+  pinMode(down_btn,  INPUT);
+  pinMode(left_btn,  INPUT);
+  pinMode(rigth_btn, INPUT);
 }// setup
 
 void loop() {
-  //*
-  int up = digitalRead(31);
-  int down = digitalRead(30);
-  int left = digitalRead(33);
-  int rigth = digitalRead(32);
-  // char msg[ ] = {up, ' ', down, ' ', left, ' ', rigth};
-  // String msg = String(up) + ' ' + String(down) + ' ' + String(left) + ' ' + String(rigth);
-  Serial.println(String(up));
-  //*/
+  /*
+   * For x and y I supposed that the two buttons in the same axe
+   * (up&down and left&rigth) will be not pressed at the same time
+   */
+  byte x = - digitalRead(up_btn) + digitalRead(down_btn);
+  byte y = - digitalRead(left_btn) + digitalRead(rigth_btn);
+  byte a = digitalRead(a_btn);
+  byte b = digitalRead(b_btn);
+
+  bool is_changed = (x || y || a || b);
+  if(is_changed){
+    String msg = String(x) + '#' + String(y) + '#' + String(a) + '#' + String(b);
+    Serial.println(msg); 
+  }// if
 }// loop
 
 void aButtonISR() {
-  serialSend(a_button);
+  btnFilter(1, 0);
 }// aButtonCallback
 
 void bButtonISR() {
-  serialSend(b_button);
+  btnFilter(0, 1);
 }// aButtonCallback
 
-void serialSend(byte button){
+void btnFilter(byte a, byte b){
   long now = millis();
   if ((now - debounceTime) > debounceDelay) {
     debounceTime = now;
-    Serial.println(String(button));
+    //a_value = a;
+    //b_value = b;
+
+    //Serial.println(String(a) + String(b));
   }// if
 }// serialSend
