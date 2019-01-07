@@ -24,6 +24,14 @@ namespace exto {
 namespace emulation {
 
 #define LINUX_UINPUT_FOLDER "/dev/uinput"
+#define SPACE_MOV_UNIT 5 // TODO: make this value configurable
+
+enum Commands{
+  FIRE = 0,
+  MOVX,
+  MOVY
+}; // enum Commands
+
 
 class EXPORT_API XtFire {
 public:
@@ -42,6 +50,10 @@ private:
   void createEmulation();
 
   void openArduino();
+
+  void mouseMove(int x, int y, int factor);
+
+  void parseCmd(int cmd, int value);
 
   void writeCmd(int fd, int type, int code, int val);
 
