@@ -1,0 +1,6 @@
+# Progetto NES Zapper
+## Componenti
+
+Arduino Mini           5.00€	     x2 (https://www.banggood.com/search/arduino-mini.html?sbc=1)
+Giroscopio x Arduino   3.00€	     x2 (https://www.banggood.com/GY-6500-MPU6500-6DOF-6-Axis-Attitude-Acceleration-Gyroscope-Sensor-Module-SPI-Interface-p-1200561.html?rmmds=search&cur_warehouse=CN)
+Controller x2 Joypad   40.00-50.00€  x1 (https://www.banggood.com/Dual-Player-Arcade-DIY-Kit-Game-Controller-Joystick-LED-Push-Button-Encoder-Board-p-1281782.html?rmmds=search&cur_warehouse=CN)
